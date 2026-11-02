@@ -57,7 +57,7 @@ plugins/metricx/
   plugin.json                        manifesto Codex / agent-plugins
   mcp.json                           servidor MCP (formato portável)
   skills/metricx-analise/SKILL.md    orientação de uso das ferramentas
-  assets/icon.svg
+  assets/logo.png                    ícone (OpenAI: logo e composerIcon)
 ```
 
-Política de privacidade: https://api-metricx.baldussi.com.br/legal/privacidade · Termos de uso: https://api-metricx.baldussi.com.br/legal/termos · Suporte: **a definir pela Baldussi**.
+Política de privacidade: https://api-metricx.baldussi.com.br/legal/privacidade · Termos de uso: https://api-metricx.baldussi.com.br/legal/termos · Suporte: https://api-metricx.baldussi.com.br/agente-mcp/suporte

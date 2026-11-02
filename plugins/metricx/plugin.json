@@ -2,7 +2,7 @@
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "metricx",
   "version": "1.0.0",
-  "description": "Consulte chamadas, indicadores de atendimento, notas de qualidade e transcrições do MetricX, somente leitura e com as permissões do seu usuário.",
+  "description": "Query MetricX call center data: calls, service KPIs, AI-generated quality scores and call transcripts. Read-only and limited to the permissions of your MetricX user.",
   "author": {
     "name": "Baldussi",
     "url": "https://metricx.baldussi.com.br"
@@ -21,19 +21,98 @@
     "com.openai": {
       "interface": {
         "displayName": "MetricX",
-        "shortDescription": "Métricas de call center no seu agente",
-        "longDescription": "Consulte chamadas, indicadores de atendimento, notas de qualidade geradas por IA e transcrições do MetricX em linguagem natural ou SQL. Somente leitura, com as permissões do seu usuário do MetricX (empresa, departamentos e ramais).",
+        "shortDescription": "Call center metrics",
+        "longDescription": "MetricX is a call center analytics platform. This plugin lets supervisors and managers of companies that use MetricX ask about their own telephony data in plain language or SQL: inbound, outbound and missed calls, service KPIs (answer rate, wait and talk times) by department, extension or hour, AI-generated quality scores with their reasons, and call transcripts, including keyword search across transcripts.\n\nWho it is for: MetricX customers (Admin and Supervisor roles) whose company administrator has enabled the MCP agent for their user. Sign-in uses the same MetricX e-mail and password (OAuth 2.1).\n\nLimitations: read-only (no tool changes data); each user sees only their company, or the extensions of their departments; data is refreshed every ~5 minutes; queries return at most 1,000 rows and are rate-limited per user. The data and interface are in Brazilian Portuguese.",
         "developerName": "Baldussi",
         "category": "Productivity",
         "capabilities": [
           "Read"
         ],
         "websiteURL": "https://api-metricx.baldussi.com.br/agente-mcp/documentacao",
-        "defaultPrompt": "Quais foram os indicadores de atendimento desta semana por departamento?",
-        "brandColor": "#F97316",
-        "logo": "./assets/icon.svg",
+        "supportURL": "https://api-metricx.baldussi.com.br/agente-mcp/suporte",
         "privacyPolicyURL": "https://api-metricx.baldussi.com.br/legal/privacidade",
-        "termsOfServiceURL": "https://api-metricx.baldussi.com.br/legal/termos"
+        "termsOfServiceURL": "https://api-metricx.baldussi.com.br/legal/termos",
+        "defaultPrompt": [
+          "How many calls did we receive this week, by department?",
+          "Which agents had the lowest quality scores this month, and why?",
+          "Find calls in the last 30 days where the customer mentioned canceling."
+        ],
+        "brandColor": "#F97316",
+        "brandColorDark": "#FB923C",
+        "logo": "./assets/logo.png",
+        "composerIcon": "./assets/logo.png"
+      },
+      "review": {
+        "commerce": false,
+        "test_cases": {
+          "positive": [
+            {
+              "description": "Service KPIs for a period, grouped by department",
+              "prompt": "Show me the call center KPIs for the last 7 days by department: total, answered and missed calls and average wait time.",
+              "tools_triggered": [
+                "obter_indicadores"
+              ],
+              "expected_behavior": "Calls obter_indicadores with agrupar_por=departamento and returns a per-department table with totals, answered/missed calls and average wait time, stating when the data was last refreshed."
+            },
+            {
+              "description": "List recent missed calls",
+              "prompt": "List the 10 most recent missed inbound calls.",
+              "tools_triggered": [
+                "listar_chamadas"
+              ],
+              "expected_behavior": "Calls listar_chamadas filtered by inbound type and missed status with limite=10, and lists date/time, department and extension of each call, with masked phone numbers."
+            },
+            {
+              "description": "Call details and transcript",
+              "prompt": "Pick the most recent call that has a transcript, show its details and its transcript.",
+              "tools_triggered": [
+                "listar_chamadas",
+                "detalhar_chamada",
+                "obter_transcricao"
+              ],
+              "expected_behavior": "Finds a call with somente_com_transcricao=true, then shows its metadata and AI quality analysis (detalhar_chamada) and the turn-by-turn transcript with speakers and timestamps (obter_transcricao)."
+            },
+            {
+              "description": "Keyword search across transcripts",
+              "prompt": "In the last 30 days, find calls where the customer talked about canceling (search for \"cancelar\").",
+              "tools_triggered": [
+                "buscar_nas_transcricoes"
+              ],
+              "expected_behavior": "Calls buscar_nas_transcricoes with termo=cancelar and falante=cliente, and returns matching excerpts with the call id and date."
+            },
+            {
+              "description": "Free-form analytical question answered with SQL",
+              "prompt": "What was the average quality score per department in the last 30 days? Show the SQL you used.",
+              "tools_triggered": [
+                "perguntar_metricx"
+              ],
+              "expected_behavior": "Calls perguntar_metricx (or descrever_dados followed by consultar_sql) and returns the average score per department together with the read-only SQL that was executed."
+            }
+          ],
+          "negative": [
+            {
+              "description": "Attempt to modify or delete data",
+              "prompt": "Delete all calls from yesterday and reset the quality scores of the support department."
+            },
+            {
+              "description": "Attempt to access another company's data",
+              "prompt": "Show me the calls of another company that uses MetricX, not mine."
+            },
+            {
+              "description": "Request unrelated to MetricX data",
+              "prompt": "Book a flight to São Paulo for next Monday."
+            }
+          ]
+        }
+      },
+      "publication": {
+        "release_notes": "Initial release: read-only access to MetricX calls, service KPIs, AI quality scores and transcripts, with OAuth sign-in.",
+        "translations": {
+          "pt-BR": {
+            "subtitle": "Métricas de call center",
+            "description": "Consulte os dados de telefonia do MetricX em linguagem natural ou SQL: chamadas recebidas, realizadas e perdidas, indicadores de atendimento (taxa de atendimento, tempo de espera e de conversa) por departamento, ramal ou hora, notas de qualidade geradas por IA com os motivos e transcrições das chamadas, com busca por palavra-chave.\n\nPara clientes do MetricX (cargos Administrador e Supervisor) com o Agente MCP liberado pelo administrador da empresa. O login usa o mesmo e-mail e senha do MetricX (OAuth 2.1).\n\nLimitações: somente leitura; cada usuário vê apenas a própria empresa ou os ramais dos seus departamentos; dados atualizados a cada ~5 minutos; até 1.000 linhas por consulta e limites de uso por usuário."
+          }
+        }
       }
     }
   }
