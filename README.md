@@ -3,14 +3,14 @@
 Conecta o seu agente (Claude Code, Codex) ao **MetricX**: chamadas, indicadores de atendimento, notas de qualidade
 por IA e transcrições, sempre **somente leitura** e com as permissões do seu usuário do MetricX.
 
-> Repositório: https://github.com/quisen/metricx-plugin · O servidor MCP é
+> Repositório: https://github.com/BaldussiTelecom/metricx-plugin · O servidor MCP é
 > `https://api-metricx.baldussi.com.br/mcp` (Streamable HTTP, OAuth 2.1).
 
 ## Instalar
 
 **Claude Code**
 ```
-/plugin marketplace add quisen/metricx-plugin
+/plugin marketplace add BaldussiTelecom/metricx-plugin
 /plugin install metricx@metricx
 ```
 Depois rode `/mcp`, escolha `metricx` e faça login com o e-mail e a senha do MetricX.
@@ -19,7 +19,7 @@ Sem plugin: `claude mcp add --transport http metricx https://api-metricx.balduss
 
 **Codex**
 ```
-codex plugin marketplace add quisen/metricx-plugin
+codex plugin marketplace add BaldussiTelecom/metricx-plugin
 ```
 Depois, dentro do Codex, abra `/plugins` e instale **MetricX**. O login abre no navegador.
 
